@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haritha Cricket - Live Score & Stats</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+body { background: linear-gradient(135deg,#a8e063,#faff00); min-height:100vh; }
+header { background:#006400; color:white; padding:15px; text-align:center; font-size:28px; font-weight:bold; }
+nav { background:#e0ffe0; padding:12px; display:flex; justify-content:center; flex-wrap:wrap; align-items:center; }
+nav a { margin:0 15px; text-decoration:none; font-weight:bold; color:#006600; }
+nav span { margin-left:20px; font-weight:bold; color:#006600; }
+.container { display:flex; flex-wrap:wrap; justify-content:center; padding:20px; gap:20px; }
+.card { background:white; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.1); padding:20px; width:100%; max-width:400px; }
+h3 { margin-bottom:10px; color:#006400; }
+.live-list { max-height:500px; overflow-y:auto; }
+.live-card { background:#f0fff0; border-left:5px solid #32cd32; padding:15px; border-radius:8px; margin-bottom:15px; display:flex; flex-direction:column; gap:5px; }
+.match-title { font-weight:bold; font-size:16px; margin-bottom:5px; display:flex; align-items:center; gap:10px; }
+.country-flag { width:30px; height:20px; object-fit:cover; border-radius:4px; }
+.live-score { font-size:14px; font-weight:bold; margin-bottom:5px; }
+.mini-scoreboard { background:#e8ffe8; padding:8px; border-radius:5px; font-size:13px; margin-bottom:5px; }
+.mini-scoreboard span { margin-right:5px; padding:2px 4px; border-radius:3px; }
+.ball-run { background:#32cd32; color:white; }
+.ball-wicket { background:#ff4500; color:white; }
+.current-striker { text-decoration:underline; font-weight:bold; }
+.commentary { background:#f8fff8; padding:8px; border-radius:5px; margin-top:5px; max-height:120px; overflow-y:auto; font-size:13px; color:#333; }
+.country-section { margin-bottom:15px; }
+.country-name { font-weight:bold; font-size:16px; color:#006400; margin-bottom:5px; display:flex; align-items:center; gap:10px; background:#e0ffe0; padding:5px 10px; border-radius:8px; border:1px solid #32cd32; width:fit-content; }
+.match-item { font-size:14px; margin-left:10px; margin-bottom:3px; }
+footer { text-align:center; padding:15px; background:#ddd; margin-top:30px; }
+@media(min-width:768px){.card{width:45%;}}
+@media(min-width:1024px){.card{width:30%;}}
+</style>
+</head>
+<body>
+
+<header>Haritha Cricket</header>
+<nav>
+  <a href="#">Live Scores</a>
+  <a href="#">Matches</a>
+  <span id="total-views">Views: 1</span>
+</nav>
+
+<div class="container">
+  <div class="card">
+    <h3>Live Matches</h3>
+    <div class="live-list" id="live-list"><p>Loading live matches...</p></div>
+  </div>
+
+  <div class="card">
+    <h3>Upcoming Matches</h3>
+    <div id="upcoming-matches"><p>Loading upcoming matches...</p></div>
+  </div>
+</div>
+
+<footer>© 2025 Haritha Cricket. All rights reserved.</footer>
+
+<script>
+// Country Flags
+const countryFlags = {
+  India:"https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg",
+  Australia:"https://upload.wikimedia.org/wikipedia/en/b/b9/Flag_of_Australia.svg",
+  England:"https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg",
+  Pakistan:"https://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Pakistan.svg",
+  SriLanka:"https://upload.wikimedia.org/wikipedia/commons/1/11/Flag_of_Sri_Lanka.svg",
+  WestIndies:"https://upload.wikimedia.org/wikipedia/commons/8/81/Flag_of_the_West_Indies.svg"
+};
+
+// Total Views
+let totalViews = 1;
+function updateViews(){
+    totalViews++;
+    document.getElementById('total-views').innerText=`Views: ${totalViews}`;
+}
+
+// Simulate Ball Outcomes
+function simulateBalls() { const outcomes=['0','1','2','3','4','6','W']; return Array.from({length:6},()=>outcomes[Math.floor(Math.random()*outcomes.length)]); }
+function simulateCommentary(balls){ return balls.map(b=>b==='W'?'WICKET! Amazing delivery.':`${b} run(s) scored.`); }
+
+// Simulated Live Matches
+let liveMatches = [
+  {team1:'India',team2:'Australia',score1:'250/3 (45)',score2:'230/5 (44)'},
+  {team1:'England',team2:'Pakistan',score1:'180/4 (35)',score2:'150/5 (34)'}
+];
+
+function renderLiveMatches(){
+  const container=document.getElementById('live-list');
+  container.innerHTML='';
+  liveMatches.forEach(match=>{
+    const balls=simulateBalls();
+    const commentaryHtml=simulateCommentary(balls).map(line=>`<div>${line}</div>`).join('');
+    const miniScore=balls.map((b,i)=>`<span class="${b==='W'?'ball-wicket':'ball-run'} ${i===5?'current-striker':''}">${b}</span>`).join(' ');
+    const div=document.createElement('div'); div.className='live-card';
+    div.innerHTML=`
+      <div class="match-title">
+        <img src="${countryFlags[match.team1]}" class="country-flag"> ${match.team1} vs 
+        <img src="${countryFlags[match.team2]}" class="country-flag"> ${match.team2}
+      </div>
+      <div class="live-score">${match.team1} batting: ${match.score1}</div>
+      <div class="live-score">${match.team2} batting: ${match.score2}</div>
+      <div class="mini-scoreboard"><strong>Last 6 balls:</strong> ${miniScore}</div>
+      <div class="commentary"><strong>Commentary:</strong>${commentaryHtml}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Upcoming Matches
+let upcomingMatches=[
+  {team1:'India',team2:'Australia',date:'2025-08-20T15:00:00'},
+  {team1:'India',team2:'England',date:'2025-08-25T19:00:00'},
+  {team1:'England',team2:'South Africa',date:'2025-08-22T14:00:00'},
+  {team1:'Australia',team2:'WestIndies',date:'2025-08-23T18:00:00'}
+];
+
+function renderUpcomingMatches(){
+  const container=document.getElementById('upcoming-matches');
+  container.innerHTML='';
+  upcomingMatches.forEach(m=>{
+    const div=document.createElement('div'); div.className='match-item';
+    div.innerHTML=`<img src="${countryFlags[m.team1]}" class="country-flag"> ${m.team1} vs 
+                   <img src="${countryFlags[m.team2]}" class="country-flag"> ${m.team2} – ${new Date(m.date).toLocaleString()}`;
+    container.appendChild(div);
+  });
+}
+
+// Initialize
+updateViews();
+renderLiveMatches();
+renderUpcomingMatches();
+setInterval(renderLiveMatches,10000); // Update live matches every 10s
+setInterval(updateViews,60000); // Increment views every 1 min
+</script>
+
+</body>
+</html>
